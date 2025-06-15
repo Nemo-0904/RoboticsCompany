@@ -1,3 +1,6 @@
+// backend/server.js
+
+
 
 const express = require("express");
 const dotenv = require("dotenv");
@@ -15,9 +18,9 @@ app.use(express.json());
 app.use(express.static("public")); // Serve static HTML files like success.html
 
 // Routes
-app.use("/api/auth", require("./routes/auth"));
-app.use("/api/products", require("./routes/products"));
-app.use("/api/payment", require("./routes/payment"));
+app.use("/api/auth", require("./public/routes/auth"));
+app.use("/api/products", require("./public/routes/products"));
+app.use("/api/payment", require("./public/routes/payment"));
 
 app.get("/", (req, res) => {
   res.send("API is running...");

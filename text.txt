@@ -1,0 +1,21 @@
+Landing Page – Overview of the company and links to products/blog.
+
+User Authentication – Signup, login, logout (with secure password hashing).
+
+Product Catalog – View list of robot products from the backend.
+
+Shopping Cart – Add/remove robots and simulate checkout.
+
+Blog System – View blogs, with create/edit support (later).
+
+REST API – Backend API for users, products, and blog data.
+
+ nithyacherala = NemoisFun
+ current IP address (206.84.224.83)
+
+Publishable key
+pk_test_51RZsGyQnckO6Q134MosfGqEbDUtkbdWVlFE7mwP4HhO6tPg1O71G1WUYpfjxmxsSw2EOb1wzTTU8uw7xYk47ZtEy004vgMC544
+
+
+Secret key
+sk_test_51RZsGyQnckO6Q134ObhYZuYUKC9eOIcloPdoEQMU0huub1gaVa5x5atTlEEJikD1ygqQqn18fYn4pUmrMVNPUTmD00VQrKbxeN
