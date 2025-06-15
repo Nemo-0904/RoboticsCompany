@@ -37,12 +37,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cart.length === 0) {
             cartItemsList.innerHTML = "<li>Your cart is empty.</li>";
             cartTotalSpan.innerText = "0"; 
-            buyNowBtn.disabled = true; // Disable buy now if cart is empty
+            buyNowBtn.disabled = true; 
             cartModal.style.display = "block"; 
             return;
         }
 
-        buyNowBtn.disabled = false; // Enable buy now if cart has items
+        buyNowBtn.disabled = false; 
 
         cart.forEach((item, index) => {
             const listItem = document.createElement("li");
@@ -192,11 +192,12 @@ document.addEventListener("DOMContentLoaded", () => {
      * Attaches event listeners to all "Add to Cart" buttons.
      */
     function attachAddToCartListeners() {
+        // Corrected price selector: target the span with class "price"
         document.querySelectorAll(".masonry-item button").forEach((btn) => {
             btn.addEventListener("click", () => {
                 const productCard = btn.closest(".masonry-item");
                 const title = productCard.querySelector("h3").innerText.trim();
-                // Ensure you target the correct span element that holds the price
+                // --- FIX APPLIED HERE ---
                 const priceText = productCard.querySelector(".price").innerText.trim(); 
                 const price = parseFloat(priceText.replace("₹", "").replace(/,/g, ""));
                 const id = btn.dataset.productId;
@@ -231,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             const products = await res.json();
             
-            productsContainer.innerHTML = ''; // Clear existing hardcoded products if any
+            productsContainer.innerHTML = ''; 
 
             products.forEach(product => {
                 const productCard = document.createElement('div');
@@ -246,7 +247,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 productsContainer.appendChild(productCard);
             });
 
-            attachAddToCartListeners(); // Attach event listeners after products are loaded
+            // --- IMPORTANT: Attach listeners AFTER products are added to the DOM ---
+            attachAddToCartListeners(); 
 
         } catch (error) {
             console.error("Failed to fetch products:", error);
@@ -280,7 +282,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                // *** CRITICAL FIX: Updated endpoint to include /payment ***
                 const res = await fetch(`${API_BASE_URL}/api/payment/create-checkout-session`, {
                     method: "POST",
                     headers: {
@@ -324,10 +325,10 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartCount();
     // Only fetch products and attach listeners if on products.html
     if (window.location.pathname.includes('products.html')) {
-        fetchProducts();
+        fetchProducts(); // This will call attachAddToCartListeners internally after products are fetched
     } else {
-        // If not on products page, but on a page like index.html that might have 'add to cart' buttons,
-        // attach listeners to those static elements if present.
+        // If not on products page, but on a page like index.html that might have static 'add to cart' buttons,
+        // attach listeners to those static elements if present right away.
         attachAddToCartListeners(); 
     }
 });
