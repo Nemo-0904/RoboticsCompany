@@ -1,13 +1,12 @@
 // frontend/js/main.js
-const API_BASE_URL = "https://roboticco.onrender.com"; // <<< THIS WILL BE UPDATED LATER
-
-const stripePublicKey = "pk_test_51RZsGyQnckO6Q134MosfGqEbDUtkbdWVlFE7mwP4HhO6tPg1O71WUYpfjxmxsSw2EOb1wzTTU8uw7xYk47ZtEy004vgMC544"; // Your publishable key
+const API_BASE_URL = "https://roboticco.onrender.com"; 
+const stripePublicKey = "pk_test_51RZsGyQnckO6Q134MosfGqEbDUtkbdWVlFE7mwP4HhO6tPg1O71WUYpfjxmxsSw2EOb1wzTTU8uw7xYk47ZtEy004vgMC544"; 
 
 document.addEventListener("DOMContentLoaded", () => {
     // --- Global Cart Variable ---
-    let cart = []; // Stores items added to the cart on the client-side
+    let cart = []; 
     const showCartButton = document.getElementById("show-cart");
-    const cartCountSpan = document.getElementById("cart-count"); // To display number of items
+    const cartCountSpan = document.getElementById("cart-count");
     const cartModal = document.getElementById("cart-modal");
     const cartItemsList = document.getElementById("cart-items");
     const cartTotalSpan = document.getElementById("cart-total");
@@ -32,15 +31,18 @@ document.addEventListener("DOMContentLoaded", () => {
     function showCart() {
         if (!cartItemsList || !cartTotalSpan || !cartModal) return;
 
-        cartItemsList.innerHTML = ""; // Clear previous items
+        cartItemsList.innerHTML = ""; 
         let total = 0;
 
         if (cart.length === 0) {
             cartItemsList.innerHTML = "<li>Your cart is empty.</li>";
-            cartTotalSpan.innerText = "0"; // Set total to 0 for an empty cart
-            cartModal.style.display = "block"; // Show the modal
+            cartTotalSpan.innerText = "0"; 
+            buyNowBtn.disabled = true; // Disable buy now if cart is empty
+            cartModal.style.display = "block"; 
             return;
         }
+
+        buyNowBtn.disabled = false; // Enable buy now if cart has items
 
         cart.forEach((item, index) => {
             const listItem = document.createElement("li");
@@ -55,14 +57,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         cartTotalSpan.innerText = total.toLocaleString("en-IN");
-        cartModal.style.display = "block"; // Show the modal
+        cartModal.style.display = "block"; 
 
         cartItemsList.querySelectorAll(".remove-item-btn").forEach((removeBtn) => {
             removeBtn.addEventListener("click", (e) => {
                 const indexToRemove = parseInt(e.target.dataset.index);
-                cart.splice(indexToRemove, 1); // Remove item from array
-                updateCartCount(); // Update count
-                showCart(); // Re-render cart modal
+                cart.splice(indexToRemove, 1); 
+                updateCartCount(); 
+                showCart(); 
             });
         });
     }
@@ -70,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // This function needs to be globally accessible for `onclick="closeCart()"` in HTML
     window.closeCart = function () {
         if (cartModal) {
-            cartModal.style.display = "none"; // Hide the modal
+            cartModal.style.display = "none"; 
         }
     };
 
@@ -105,8 +107,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     alert(data.message || "Something went wrong during login.");
                 } else {
                     alert("Login successful!");
-                    localStorage.setItem("token", data.token); // Store the JWT
-                    window.location.href = "index.html"; // Redirect
+                    localStorage.setItem("token", data.token); 
+                    window.location.href = "index.html"; 
                 }
             } catch (err) {
                 console.error("Login Error:", err);
@@ -133,7 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                // Corrected: Using the register endpoint for signup
                 const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
                     method: "POST",
                     headers: {
@@ -148,8 +149,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     alert("Signup failed: " + (data.message || "Something went wrong."));
                 } else {
                     alert("Signup successful!");
-                    localStorage.setItem("token", data.token); // Store the JWT
-                    window.location.href = "login.html"; // Redirect to login after signup
+                    localStorage.setItem("token", data.token); 
+                    window.location.href = "login.html"; 
                 }
             } catch (err) {
                 console.error("Signup Error:", err);
@@ -184,8 +185,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     // Apply toggle to login and signup forms
-    togglePasswordVisibility("password-toggle", "password"); // For login form
-    togglePasswordVisibility("signup-password-toggle", "signup-password"); // For signup form
+    togglePasswordVisibility("password-toggle", "password"); 
+    togglePasswordVisibility("signup-password-toggle", "signup-password"); 
 
     /**
      * Attaches event listeners to all "Add to Cart" buttons.
@@ -195,11 +196,11 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.addEventListener("click", () => {
                 const productCard = btn.closest(".masonry-item");
                 const title = productCard.querySelector("h3").innerText.trim();
-                const priceText = productCard.querySelector("span").innerText.trim();
+                // Ensure you target the correct span element that holds the price
+                const priceText = productCard.querySelector(".price").innerText.trim(); 
                 const price = parseFloat(priceText.replace("₹", "").replace(/,/g, ""));
                 const id = btn.dataset.productId;
 
-                // Check if item already in cart to increment quantity
                 const existingItem = cart.find((item) => item.id === id);
 
                 if (existingItem) {
@@ -208,35 +209,83 @@ document.addEventListener("DOMContentLoaded", () => {
                     cart.push({ id, title, price, quantity: 1 });
                 }
 
-                updateCartCount(); // Update the cart icon count
+                updateCartCount(); 
                 if (showCartButton) {
-                    showCartButton.click(); // Automatically open cart modal
+                    showCartButton.click(); 
                 }
             });
         });
     }
+
+    /**
+     * Fetches products from the backend API and renders them.
+     * This function should be called on products.html page load.
+     */
+    async function fetchProducts() {
+        if (!productsContainer) return; 
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/products`);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            const products = await res.json();
+            
+            productsContainer.innerHTML = ''; // Clear existing hardcoded products if any
+
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.classList.add('masonry-item');
+                productCard.innerHTML = `
+                    <img src="images/robot1.jpg" alt="${product.title}" /> 
+                    <h3>${product.title}</h3>
+                    <p>Product description for ${product.title} goes here.</p>
+                    <span class="price">₹${product.price.toLocaleString("en-IN")}</span>
+                    <button data-product-id="${product._id}">Add to Cart</button>
+                `;
+                productsContainer.appendChild(productCard);
+            });
+
+            attachAddToCartListeners(); // Attach event listeners after products are loaded
+
+        } catch (error) {
+            console.error("Failed to fetch products:", error);
+            productsContainer.innerHTML = '<p>Failed to load products. Please try again later.</p>';
+        }
+    }
+
 
     // --- Event Listeners for Cart Interaction ---
 
     // Navbar "Show Cart" link
     if (showCartButton) {
         showCartButton.addEventListener("click", (e) => {
-            e.preventDefault(); // Prevent default link behavior
-            showCart(); // Display the cart modal
+            e.preventDefault(); 
+            showCart(); 
         });
     }
 
     if (buyNowBtn) {
         buyNowBtn.addEventListener("click", async () => {
+            if (cart.length === 0) {
+                alert("Your cart is empty. Please add items before proceeding to checkout.");
+                return;
+            }
+
             const token = localStorage.getItem("token");
+            if (!token) {
+                alert("Please log in to proceed with the payment.");
+                window.location.href = "login.html"; 
+                return;
+            }
 
             try {
-                // Corrected: Using a dedicated endpoint for creating checkout sessions
-                const res = await fetch(`${API_BASE_URL}/api/create-checkout-session`, {
+                // *** CRITICAL FIX: Updated endpoint to include /payment ***
+                const res = await fetch(`${API_BASE_URL}/api/payment/create-checkout-session`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": token ? `Bearer ${token}` : ''
+                        "Authorization": `Bearer ${token}` 
                     },
                     body: JSON.stringify({ cartItems: cart })
                 });
@@ -248,7 +297,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         const errorData = await res.json();
                         errorMessage = errorData.message || errorMessage;
                     } else {
-                        errorMessage = await res.text(); // Get raw text if not JSON
+                        errorMessage = await res.text(); 
                     }
                     throw new Error(errorMessage);
                 }
@@ -273,5 +322,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Initializations on Page Load ---
     updateCartCount();
-    attachAddToCartListeners();
+    // Only fetch products and attach listeners if on products.html
+    if (window.location.pathname.includes('products.html')) {
+        fetchProducts();
+    } else {
+        // If not on products page, but on a page like index.html that might have 'add to cart' buttons,
+        // attach listeners to those static elements if present.
+        attachAddToCartListeners(); 
+    }
 });
