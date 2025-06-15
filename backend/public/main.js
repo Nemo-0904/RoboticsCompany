@@ -3,7 +3,6 @@ const API_BASE_URL = "https://roboticco.onrender.com";
 const stripePublicKey = "pk_test_51RZsGyQnckO6Q134MosfGqEbDUtkbdWVlFE7mwP4HhO6tPg1O71WUYpfjxmxsSw2EOb1wzTTU8uw7xYk47ZtEy004vgMC544"; 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // --- Global Cart Variable ---
     let cart = []; 
     const showCartButton = document.getElementById("show-cart");
     const cartCountSpan = document.getElementById("cart-count");
@@ -14,10 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const productsContainer = document.getElementById("products-container");
 
-
-    /**
-     * Updates the count of items displayed next to the cart icon.
-     */
     function updateCartCount() {
         const totalItemsInCart = cart.reduce((sum, item) => sum + item.quantity, 0);
         if (cartCountSpan) {
@@ -197,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.addEventListener("click", () => {
                 const productCard = btn.closest(".masonry-item");
                 const title = productCard.querySelector("h3").innerText.trim();
-                // --- FIX APPLIED HERE ---
+            
                 const priceText = productCard.querySelector(".price").innerText.trim(); 
                 const price = parseFloat(priceText.replace("₹", "").replace(/,/g, ""));
                 const id = btn.dataset.productId;
